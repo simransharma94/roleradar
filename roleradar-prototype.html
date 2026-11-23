@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RoleRadar — AI Job Discovery, Resume Tailoring & Interview Prep</title>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --surface: #ffffff;
+      --surface-alt: #f8fafc;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --text-light: #64748b;
+      --primary: #1d4ed8;
+      --primary-hover: #1e40af;
+      --primary-soft: #eff6ff;
+      --navy: #1e293b;
+      --success: #15803d;
+      --success-bg: #dcfce7;
+      --warning: #b45309;
+      --warning-bg: #fef3c7;
+      --danger: #b91c1c;
+      --danger-bg: #fee2e2;
+      --purple: #6d28d9;
+      --purple-bg: #f3e8ff;
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    /* Header / Nav */
+    header {
+      background: var(--navy);
+      color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      border-bottom: 1px solid #334155;
+    }
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.3px;
+    }
+    .brand-badge {
+      background: var(--primary);
+      color: #fff;
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    nav {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .nav-btn {
+      background: transparent;
+      color: #cbd5e1;
+      border: none;
+      padding: 8px 13px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 13px;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .nav-btn.active { background: var(--primary); color: #fff; }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .meter-pill {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.16);
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .plan-badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+    }
+    .plan-free { background: #334155; color: #f8fafc; }
+    .plan-pro { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
+
+    /* Layout */
+    main {
+      max-width: 1280px;
+      margin: 20px auto;
+      padding: 0 20px 40px;
+    }
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 920px) {
+      .grid-layout { grid-template-columns: 1fr; }
+    }
+
+    /* Cards & Controls */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .card + .card { margin-top: 16px; }
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      margin-top: 10px;
+    }
+    label:first-child { margin-top: 0; }
+    input[type="text"], input[type="number"], select, textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: 13px;
+      font-family: inherit;
+      background: #fff;
+      color: var(--text);
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid var(--primary-soft);
+      border-color: var(--primary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    .btn-sm { padding: 5px 10px; font-size: 12px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-outline { background: #fff; border-color: var(--border); color: var(--text); }
+    .btn-outline:hover { background: var(--surface-alt); border-color: #cbd5e1; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger-soft { background: var(--danger-bg); color: var(--danger); border-color: #fecaca; }
+    .btn-pro { background: linear-gradient(135deg, #2563eb, #7c3aed); color: #fff; }
+
+    /* Badges & Pills */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .b-green { background: var(--success-bg); color: var(--success); }
+    .b-amber { background: var(--warning-bg); color: var(--warning); }
+    .b-red { background: var(--danger-bg); color: var(--danger); }
+    .b-blue { background: var(--primary-soft); color: var(--primary); }
+    .b-purple { background: var(--purple-bg); color: var(--purple); }
+    .b-gray { background: #f1f5f9; color: var(--text-muted); }
+
+    .skill-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+
+    /* Job Card */
+    .job-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+      transition: border-color 0.15s;
+    }
+    .job-card:hover { border-color: #cbd5e1; }
+    .job-card.flagged { border-left: 4px solid var(--warning); }
+    .job-card.scam-warn { border-left: 4px solid var(--danger); }
+
+    .job-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .job-title { font-size: 16px; font-weight: 700; color: var(--text); }
+    .job-company { color: var(--text-muted); font-weight: 500; font-size: 13px; margin-top: 2px; }
+    .fit-box {
+      text-align: right;
+      min-width: 115px;
+    }
+    .fit-score { font-size: 20px; font-weight: 800; line-height: 1.1; }
+    .fit-strong { color: var(--success); }
+    .fit-good { color: var(--primary); }
+    .fit-stretch { color: var(--warning); }
+
+    .signal-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 10px 0;
+    }
+    .fit-explain {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin: 10px 0;
+      font-size: 12.5px;
+    }
+    .job-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Diff Viewer */
+    .diff-block {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .diff-header {
+      background: var(--surface-alt);
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-weight: 600;
+    }
+    .diff-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    @media (max-width: 760px) { .diff-cols { grid-template-columns: 1fr; } }
+    .diff-col { padding: 14px; }
+    .diff-col:first-child { border-right: 1px solid var(--border); background: #fffafa; }
+    .diff-col:last-child { background: #f7fff9; }
+    .diff-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+      color: var(--text-light);
+      margin-bottom: 6px;
+    }
+
+    .guardrail-banner {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-left: 4px solid #d97706;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+
+    /* Progress Bar */
+    .progress-wrap {
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--success);
+      transition: width 0.25s;
+    }
+
+    /* Checklist & Resource Cards */
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      background: #fff;
+    }
+    .check-item input[type="checkbox"] {
+      margin-top: 3px;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+    .check-item.done { background: var(--surface-alt); opacity: 0.78; }
+    .check-item.done span { text-decoration: line-through; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td {
+      text-align: left;
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    th { background: var(--surface-alt); font-weight: 700; color: var(--text-muted); font-size: 12px; }
+
+    /* Modals & Toasts */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.58);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 100;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      max-width: 580px;
+      width: 100%;
+      padding: 22px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .plan-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 14px 0;
+    }
+    @media (max-width: 560px) { .plan-grid { grid-template-columns: 1fr; } }
+    .plan-option {
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .plan-option:hover, .plan-option.selected {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    #toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 150;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      background: var(--navy);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      animation: slideIn 0.2s ease-out;
+    }
+    @keyframes slideIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .banner-trust {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e3a8a;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="2" x2="12" y2="12"></line>
+      </svg>
+      RoleRadar
+      <span class="brand-badge">PRD v1.3 Prototype</span>
+    </div>
+
+    <nav aria-label="Primary Navigation">
+      <button class="nav-btn active" data-view="feed">Job Discovery</button>
+      <button class="nav-btn" data-view="tailor">Resume Studio</button>
+      <button class="nav-btn" data-view="prep">Prep &amp; Upskill</button>
+      <button class="nav-btn" data-view="tracker">Application Tracker <span id="tracker-count" class="badge b-blue">0</span></button>
+      <button class="nav-btn" data-view="profile">Profile &amp; Privacy</button>
+    </nav>
+
+    <div class="header-meta">
+      <div class="meter-pill" id="credit-meter">
+        <!-- Rendered by JS -->
+      </div>
+      <button class="plan-badge plan-free" id="header-plan-btn" onclick="openUpgradeModal('header')">Free Tier</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- VIEW 1: JOB DISCOVERY FEED -->
+  <section id="view-feed" class="view active">
+    <div class="banner-trust">
+      <span><strong>Trust-First Guarantee (BR07):</strong> Unified deduplicated discovery, ≤15-day freshness filters, and fee-trap / ghost warnings remain <strong>forever free</strong>.</span>
+      <span id="feed-summary-stat" class="badge b-blue">Loading matches...</span>
+    </div>
+
+    <div class="grid-layout">
+      <!-- Left Sidebar Filters -->
+      <aside>
+        <div class="card">
+          <div class="card-title">
+            Search &amp; Freshness Criteria
+            <button class="btn btn-sm btn-outline" onclick="switchView('profile')">Edit Profile</button>
+          </div>
+
+          <label for="f-search">Keyword / Title / Company</label>
+          <input type="text" id="f-search" placeholder="e.g. Product, React, SQL..." oninput="renderFeed()" />
+
+          <label for="f-freshness">Max Posting Age (FR03)</label>
+          <select id="f-freshness" onchange="renderFeed()">
+            <option value="1">Last 24 hours</option>
+            <option value="7">Last 7 days</option>
+            <option value="14">Last 14 days</option>
+            <option value="15" selected>≤ 15 days (Default Anti-Stale)</option>
+          </select>
+
+          <label for="f-tier">AI Fit Tier (FR06)</label>
+          <select id="f-tier" onchange="renderFeed()">
+            <option value="all">All Fit Tiers</option>
+            <option value="Strong Match">Strong Match (≥ 75%)</option>
+            <option value="Good Match">Good Match (50–74%)</option>
+            <option value="Stretch">Stretch (&lt; 50%)</option>
+          </select>
+
+          <label for="f-remote">Work Mode</label>
+          <select id="f-remote" onchange="renderFeed()">
+            <option value="all">Any Mode</option>
+            <option value="Remote">Remote</option>
+            <option value="Hybrid">Hybrid</option>
+            <option value="Onsite">Onsite</option>
+          </select>
+
+          <label style="display:flex; align-items:center; gap:8px; margin-top:14px; cursor:pointer;">
+            <input type="checkbox" id="f-hide-reposted" checked onchange="renderFeed()" />
+            <span>Suppress frequently reposted / stale listings (BR05)</span>
+          </label>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Active Candidate Profile</div>
+          <div style="font-size:13px;">
+            <strong id="side-name"></strong>
+            <div style="color:var(--text-muted);" id="side-role"></div>
+            <div class="skill-row" id="side-skills" style="margin-top:8px;"></div>
+          </div>
+          <div style="margin-top:12px;">
+            <label for="quick-persona">Demo Persona Switcher</label>
+            <select id="quick-persona" onchange="switchPersona(this.value)">
+              <option value="switcher">Persona 1: Active Switcher (4 yrs exp)</option>
+              <option value="grad">Persona 2: Fresh Graduate (Entry-level)</option>
+              <option value="transitioner">Persona 3: Domain Transitioner (QA → Dev)</option>
+            </select>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Feed List -->
+      <div id="job-feed-list"></div>
+    </div>
+  </section>
+
+  <!-- VIEW 2: RESUME TAILORING STUDIO -->
+  <section id="view-tailor" class="view">
+    <div id="tailor-empty" class="card" style="display:none; text-align:center; padding:40px;">
+      <h3>Select a shortlisted job to start tailoring</h3>
+      <p style="color:var(--text-muted); margin:8px 0 16px;">Choose any role from Job Discovery and click "Tailor Resume".</p>
+      <button class="btn btn-primary" onclick="switchView('feed')">Browse High-Fit Jobs</button>
+    </div>
+
+    <div id="tailor-workspace">
+      <div class="card" style="margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <div>
+            <span class="badge b-blue">Side-by-Side Resume Tailoring (FR07)</span>
+            <h2 id="tailor-job-title" style="margin-top:6px;">Role Title</h2>
+            <div id="tailor-job-meta" style="color:var(--text-muted); font-size:13px;"></div>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-outline" onclick="saveTailoredVersion()">Save Resume Version</button>
+            <button class="btn btn-primary" onclick="exportTailoredResume('doc')">Export DOCX</button>
+            <button class="btn btn-outline" onclick="exportTailoredResume('print')">Export / Print PDF</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Truthfulness Guardrail Banner (BR02) -->
+      <div class="guardrail-banner">
+        <strong>BR02 Truthfulness Guardrail Active:</strong> Suggested edits strictly rephrase and reorder your verified base resume. Missing skills from the job description are <strong>never fabricated</strong>—they are routed below as upskilling items.
+        <div class="skill-row" id="tailor-routed-gaps" style="margin-top:8px;"></div>
+      </div>
+
+      <!-- Side by side diffs -->
+      <div id="diff-container"></div>
+    </div>
+  </section>
+
+  <!-- VIEW 3: PREP & UPSKILL WORKSPACE -->
+  <section id="view-prep" class="view">
+    <div id="prep-workspace">
+      <div class="card" style="margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <div>
+            <span class="badge b-purple">Prep &amp; Upskill Workspace (FR08)</span>
+            <h2 id="prep-job-title" style="margin-top:6px;">Role Title</h2>
+            <div id="prep-job-meta" style="color:var(--text-muted); font-size:13px;"></div>
+          </div>
+          <div style="min-width:220px;">
+            <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700;">
+              <span>Role Readiness</span>
+              <span id="prep-pct-label">0%</span>
+            </div>
+            <div class="progress-wrap"><div class="progress-fill" id="prep-pct-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;" class="prep-grid">
+        <div class="card">
+          <div class="card-title">1. Skill Gaps &amp; Curated Learning Resources (BR03)</div>
+          <p style="font-size:12.5px; color:var(--text-muted); margin-bottom:12px;">
+            Verified external materials mapped strictly to your missing skills for this role.
+          </p>
+          <div id="prep-resources-list"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">2. Interview Prep Checklist &amp; Likely Rounds</div>
+          <div id="prep-rounds-badges" class="skill-row" style="margin-bottom:12px;"></div>
+          <div id="prep-checklist-items"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIEW 4: APPLICATION TRACKER -->
+  <section id="view-tracker" class="view">
+    <div class="card">
+      <div class="card-title">
+        Application, Tailored Resume Version &amp; Prep Tracker (FR09 / US05)
+        <span style="font-size:12px; font-weight:400; color:var(--text-muted);">Track callback outcomes across tailored vs. base resumes</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Role &amp; Company</th>
+              <th>Fit Score</th>
+              <th>Linked Resume Version</th>
+              <th>Prep Readiness</th>
+              <th>Application Stage</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tracker-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIEW 5: PROFILE, ALERTS & PRIVACY -->
+  <section id="view-profile" class="view">
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+      <div class="card">
+        <div class="card-title">Base Resume &amp; Editable Skill Profile (FR02)</div>
+
+        <label>Simulate Base Resume Upload (PDF/DOCX)</label>
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
+          <input type="file" id="resume-upload-input" accept=".pdf,.docx,.txt" onchange="simulateResumeParse()" style="font-size:12px;" />
+        </div>
+
+        <label for="p-name">Full Name</label>
+        <input type="text" id="p-name" />
+
+        <label for="p-title">Target Job Title</label>
+        <input type="text" id="p-title" />
+
+        <label for="p-skills">Verified Skills (comma-separated — updates AI Fit Scores live)</label>
+        <textarea id="p-skills" rows="3"></textarea>
+
+        <label for="p-summary">Base Professional Summary</label>
+        <textarea id="p-summary" rows="3"></textarea>
+
+        <div style="margin-top:14px; display:flex; gap:8px;">
+          <button class="btn btn-primary" onclick="saveProfileChanges()">Save Profile &amp; Re-rank Jobs</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title">Smart Alerts &amp; Notifications (FR10)</div>
+          <label for="a-mode">Alert Frequency</label>
+          <select id="a-mode" onchange="handleAlertModeChange(this.value)">
+            <option value="daily">Daily High-Fit Digest (Forever Free)</option>
+            <option value="instant">Real-Time Instant High-Fit Alerts (RoleRadar Pro)</option>
+            <option value="muted">Muted</option>
+          </select>
+          <p style="font-size:12px; color:var(--text-muted); margin-top:8px;">
+            Instant alerts notify you within minutes when a verified direct-career-page match goes live.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Privacy &amp; Self-Serve Data Controls (BR06 / US06)</div>
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-bottom:12px;">
+            <input type="checkbox" id="p-privacy-strip" checked />
+            <span>Keep resume &amp; PII private (never shared externally; stripped from analytics)</span>
+          </label>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-outline" onclick="exportUserDataJSON()">Export My Data (JSON)</button>
+            <button class="btn btn-danger-soft" onclick="openDeleteModal()">Delete Resumes &amp; Account Data</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- PHASE 2 UPGRADE MODAL (FR11 / US07) -->
+<div class="modal-backdrop" id="upgrade-modal">
+  <div class="modal">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <span class="badge b-purple">Phase 2 Monetization • RoleRadar Pro</span>
+      <button class="btn btn-sm btn-outline" onclick="closeModal('upgrade-modal')">✕</button>
+    </div>
+    <h2 style="margin-top:10px;" id="upgrade-title">Unlock Unlimited Tailoring &amp; Interview Prep</h2>
+    <p style="color:var(--text-muted); font-size:13px; margin-top:6px;" id="upgrade-subtitle">
+      Your job feed, freshness filters, and scam warnings remain 100% free forever. Upgrade for unlimited AI resume tailoring, full prep roadmaps, and instant alerts.
+    </p>
+
+    <div class="plan-grid">
+      <div class="plan-option selected" id="opt-monthly" onclick="selectPlanOption('monthly')">
+        <div style="font-weight:700;">Monthly Pro</div>
+        <div style="font-size:20px; font-weight:800; margin:4px 0;">₹499 <span style="font-size:12px; font-weight:400; color:var(--text-muted);">/ month</span></div>
+        <div style="font-size:12px; color:var(--text-muted);">Unlimited tailoring, full prep roadmaps &amp; real-time alerts. Cancel anytime.</div>
+      </div>
+      <div class="plan-option" id="opt-pass" onclick="selectPlanOption('pass')">
+        <div style="font-weight:700;">3-Month Job-Hunt Pass <span class="badge b-green">Best Value</span></div>
+        <div style="font-size:20px; font-weight:800; margin:4px 0;">₹1,199 <span style="font-size:12px; font-weight:400; color:var(--text-muted);">one-time</span></div>
+        <div style="font-size:12px; color:var(--text-muted);">Built for active search sprints with zero recurring lock-in.</div>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:14px;">
+      <button class="btn btn-outline" onclick="closeModal('upgrade-modal')">Continue with Free Discovery</button>
+      <button class="btn btn-pro" onclick="completeProUpgrade()">Complete Checkout &amp; Unlock Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE DATA MODAL (US06) -->
+<div class="modal-backdrop" id="delete-modal">
+  <div class="modal">
+    <h2 style="color:var(--danger);">Permanently Delete Resumes &amp; Account Data?</h2>
+    <p style="color:var(--text-muted); margin:10px 0 16px;">
+      Per <strong>US06 &amp; BR06</strong>, confirming will immediately wipe your base resume, all saved tailored resume versions, tracker history, and personal records. This cannot be undone.
+    </p>
+    <div style="display:flex; justify-content:flex-end; gap:10px;">
+      <button class="btn btn-outline" onclick="closeModal('delete-modal')">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmPermanentDelete()">Yes, Permanently Delete All Data</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+  // --- DATA & PERSONAS ---
+  const PERSONAS = {
+    switcher: {
+      name: "Aarav Mehta",
+      roleTitle: "Senior Product / Frontend Engineer",
+      experienceYears: 4,
+      skills: ["React", "TypeScript", "JavaScript", "REST APIs", "Product Analytics", "SQL", "A/B Testing", "Agile"],
+      baseSummary: "Product-minded Software Engineer with 4 years of experience building responsive web applications using React, TypeScript, and REST APIs. Collaborated closely with PMs on A/B testing and SQL funnel metrics.",
+      baseBullets: [
+        "Built customer-facing React and TypeScript dashboard serving 120k monthly active users.",
+        "Partnered with product team to run A/B experiments and analyze activation funnels via SQL."
+      ]
+    },
+    grad: {
+      name: "Neha Kulkarni",
+      roleTitle: "Entry-Level Software / Data Analyst",
+      experienceYears: 0,
+      skills: ["Python", "SQL", "JavaScript", "Git", "HTML/CSS", "Data Structures"],
+      baseSummary: "Final-year B.Tech Computer Science graduate with strong foundations in Python, SQL, and web fundamentals. Built academic projects in data analysis and full-stack apps.",
+      baseBullets: [
+        "Developed a Python and SQL placement tracker analyzing 500+ campus job records.",
+        "Built a responsive campus portal using JavaScript, HTML/CSS, and Git version control."
+      ]
+    },
+    transitioner: {
+      name: "Rohan Verma",
+      roleTitle: "QA Automation → Software / Product Engineering",
+      experienceYears: 3,
+      skills: ["JavaScript", "Python", "API Testing", "CI/CD", "SQL", "Playwright", "Agile"],
+      baseSummary: "QA Automation Engineer with 3 years of experience designing automated end-to-end test suites, CI/CD pipelines, and API validations in Agile squads.",
+      baseBullets: [
+        "Automated 200+ regression workflows using Playwright and JavaScript in CI/CD pipelines.",
+        "Validated backend REST APIs and queried SQL databases to isolate production defects."
+      ]
+    }
+  };
+
+  const LEARNING_CATALOG = {
+    "GraphQL": { title: "Official GraphQL Introduction & Schema Guide", type: "Docs", difficulty: "Intermediate", duration: "1.5 hrs", cost: "Free", url: "https://graphql.org/learn/" },
+    "Next.js": { title: "Next.js App Router Foundations", type: "Interactive Course", difficulty: "Intermediate", duration: "3 hrs", cost: "Free", url: "https://nextjs.org/learn" },
+    "System Design": { title: "Frontend & Web System Design Primer", type: "Practice Guide", difficulty: "Intermediate", duration: "2.5 hrs", cost: "Free", url: "https://github.com/donnemartin/system-design-primer" },
+    "Figma": { title: "Figma for Developers & Product Handoff", type: "Video", difficulty: "Beginner", duration: "45 mins", cost: "Free", url: "https://help.figma.com/" },
+    "AWS": { title: "AWS Cloud Practitioner Essentials", type: "Course", difficulty: "Beginner", duration: "4 hrs", cost: "Free", url: "https://explore.skillbuilder.aws/" },
+    "Docker": { title: "Docker Get Started Official Workshop", type: "Docs", difficulty: "Beginner", duration: "1 hr", cost: "Free", url: "https://docs.docker.com/get-started/" },
+    "React": { title: "React Official Quick Start & Thinking in React", type: "Docs", difficulty: "Beginner", duration: "2 hrs", cost: "Free", url: "https://react.dev/learn" },
+    "TypeScript": { title: "TypeScript for JS Programmers", type: "Docs", difficulty: "Beginner", duration: "1.5 hrs", cost: "Free", url: "https://www.typescriptlang.org/docs/" },
+    "PowerBI": { title: "Microsoft Learn: Get Started with Power BI", type: "Course", difficulty: "Beginner", duration: "2 hrs", cost: "Free", url: "https://learn.microsoft.com/" },
+    "Product Strategy": { title: "Reforge / Product Execution Case Drills", type: "Case Set", difficulty: "Intermediate", duration: "3 hrs", cost: "Paid", url: "https://www.reforge.com/" }
+  };
+
+  const JOBS_DATA = [
+    {
+      id: "job-1",
+      title: "Frontend Product Engineer",
+      company: "FinStack Labs",
+      location: "Bengaluru / Remote",
+      remoteMode: "Remote",
+      salary: "₹18–26 LPA",
+      postedDaysAgo: 2,
+      sources: ["Direct Career Page", "LinkedIn", "Wellfound"],
+      directUrl: "https://careers.finstack.example/frontend-product-engineer",
+      repostCount: 0,
+      hasFeeTrapWarning: false,
+      requiredSkills: ["React", "TypeScript", "REST APIs", "Product Analytics", "Next.js", "GraphQL"],
+      rounds: ["Resume & Portfolio Screen", "React/TS Live Coding", "Product Sense & UI Architecture", "Founder Chat"],
+      checklist: [
+        "Review React concurrent rendering & state performance patterns",
+        "Walk through an A/B test you shipped and its SQL funnel impact",
+        "Complete GraphQL query & schema basics refresher",
+        "Prepare 2 questions on FinStack's onboarding conversion metrics"
+      ],
+      tailorHints: {
+        summaryPrefix: "Frontend Product Engineer specializing in high-conversion web experiences using React, TypeScript, and Product Analytics.",
+        bullet1Keywords: "with 99.9% uptime and measurable conversion uplift",
+        bullet2Keywords: "reducing drop-off across multi-step onboarding flows"
+      }
+    },
+    {
+      id: "job-2",
+      title: "Associate Product Analyst",
+      company: "CartPulse Commerce",
+      location: "Gurugram (Hybrid)",
+      remoteMode: "Hybrid",
+      salary: "₹10–15 LPA",
+      postedDaysAgo: 5,
+      sources: ["Greenhouse Direct", "Naukri"],
+      directUrl: "https://boards.greenhouse.io/cartpulse/jobs/4821",
+      repostCount: 0,
+      hasFeeTrapWarning: false,
+      requiredSkills: ["SQL", "Python", "A/B Testing", "Product Analytics", "PowerBI"],
+      rounds: ["SQL & Funnel Take-Home", "Product Metrics Case Study", "Hiring Manager Round"],
+      checklist: [
+        "Practice SQL window functions (ROW_NUMBER, cohort retention)",
+        "Review A/B testing sample size & p-value fundamentals",
+        "Explore PowerBI dashboard storytelling basics"
+      ],
+      tailorHints: {
+        summaryPrefix: "Data-driven Analyst skilled in SQL, Python, and A/B experimentation to uncover user funnel insights.",
+        bullet1Keywords: "translating raw event logs into actionable retention metrics",
+        bullet2Keywords: "presenting executive funnel diagnostics to product stakeholders"
+      }
+    },
+    {
+      id: "job-3",
+      title: "Full Stack Software Engineer (Entry / Junior)",
+      company: "CloudNest Systems",
+      location: "Pune / Remote",
+      remoteMode: "Remote",
+      salary: "₹9–14 LPA",
+      postedDaysAgo: 1,
+      sources: ["Lever Direct", "Indeed", "LinkedIn"],
+      directUrl: "https://jobs.lever.co/cloudnest/swe-102",
+      repostCount: 0,
+      hasFeeTrapWarning: false,
+      requiredSkills: ["JavaScript", "React", "TypeScript", "SQL", "Git", "Docker"],
+      rounds: ["DSA & JS Coding Screen", "API + DB Design", "Team Fit"],
+      checklist: [
+        "Practice 5 medium array/hash-map problems in JS/Python",
+        "Review REST API status codes & SQL joins",
+        "Read Docker containerization basics (Dockerfile & Compose)"
+      ],
+      tailorHints: {
+        summaryPrefix: "Software Engineer with hands-on experience in JavaScript, SQL, Git workflows, and modern web applications.",
+        bullet1Keywords: "following clean code reviews and automated CI checks",
+        bullet2Keywords: "optimizing database queries and API response reliability"
+      }
+    },
+    {
+      id: "job-4",
+      title: "Technical Product Manager — Platform",
+      company: "ScaleOps AI",
+      location: "Bengaluru (Hybrid)",
+      remoteMode: "Hybrid",
+      salary: "₹24–34 LPA",
+      postedDaysAgo: 9,
+      sources: ["Direct Career Page"],
+      directUrl: "https://scaleops.example/careers/tpm",
+      repostCount: 0,
+      hasFeeTrapWarning: false,
+      requiredSkills: ["Product Analytics", "SQL", "REST APIs", "Agile", "System Design", "Product Strategy"],
+      rounds: ["Product Execution & Metrics", "API / System Design for PMs", "Leadership Panel"],
+      checklist: [
+        "Structure a north-star metric & guardrail framework case",
+        "Review API rate-limiting and webhook architecture fundamentals",
+        "Prepare 3 STAR stories highlighting cross-functional tradeoffs"
+      ],
+      tailorHints: {
+        summaryPrefix: "Technical builder with strong grounding in REST APIs, SQL analytics, and Agile product delivery.",
+        bullet1Keywords: "aligning engineering tradeoffs with measurable user outcomes",
+        bullet2Keywords: "defining instrumentation specs and experiment success criteria"
+      }
+    },
+    {
+      id: "job-5",
+      title: "Senior React Developer (Reposted 4x)",
+      company: "OmniStaffing Solutions",
+      location: "Remote",
+      remoteMode: "Remote",
+      salary: "₹16–22 LPA",
+      postedDaysAgo: 14,
+      sources: ["Aggregator Feed", "Indeed"],
+      directUrl: "https://omnistaff.example/apply/991",
+      repostCount: 4,
+      hasFeeTrapWarning: false,
+      requiredSkills: ["React", "TypeScript", "AWS", "GraphQL"],
+      rounds: ["Recruiter Screen", "Technical Panel"],
+      checklist: ["Verify role is actively interviewing before investing deep prep time"],
+      tailorHints: {
+        summaryPrefix: "React and TypeScript specialist focused on scalable frontend architecture.",
+        bullet1Keywords: "with modular component libraries",
+        bullet2Keywords: "across cross-browser production releases"
+      }
+    },
+    {
+      id: "job-6",
+      title: "Junior Web Developer — Urgent Hiring",
+      company: "QuickHire Consultancy (Unverified)",
+      location: "Noida (Onsite)",
+      remoteMode: "Onsite",
+      salary: "₹6–8 LPA",
+      postedDaysAgo: 3,
+      sources: ["External Feed"],
+      directUrl: "https://quickhire-example.invalid/fee-form",
+      repostCount: 1,
+      hasFeeTrapWarning: true,
+      requiredSkills: ["HTML/CSS", "JavaScript", "Git"],
+      rounds: ["External Form"],
+      checklist: ["Do NOT pay registration, laptop, or training deposits"],
+      tailorHints: {
+        summaryPrefix: "Web Developer skilled in JavaScript and HTML/CSS.",
+        bullet1Keywords: "with responsive layouts",
+        bullet2Keywords: "using Git"
+      }
+    }
+  ];
+
+  // --- STATE ---
+  let state = {
+    personaKey: "switcher",
+    user: JSON.parse(JSON.stringify(PERSONAS.switcher)),
+    plan: "free", // 'free' | 'pro'
+    proPlanLabel: "",
+    tailorCreditsUsed: 0,
+    tailorMaxFree: 3,
+    prepCreditsUsed: 0,
+    prepMaxFree: 1,
+    tailoredJobs: {}, // jobId -> { versionName, diffs: [...], saved: bool }
+    prepUnlockedJobs: {}, // jobId -> { checkedIndices: [] }
+    reportedJobs: {}, // jobId -> bool
+    applications: [
+      { jobId: "job-1", status: "Saved", resumeVersion: "Base Resume", appliedDate: "—" }
+    ],
+    activeTailorJobId: "job-1",
+    activePrepJobId: "job-1",
+    alertsMode: "daily",
+    selectedProOption: "monthly"
+  };
+
+  // --- HELPER FUNCTIONS ---
+  function showToast(msg) {
+    const c = document.getElementById("toast-container");
+    const t = document.createElement("div");
+    t.className = "toast";
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 3200);
+  }
+
+  function computeFit(job) {
+    const userSkillsLower = state.user.skills.map(s => s.trim().toLowerCase()).filter(Boolean);
+    const matched = [];
+    const missing = [];
+    job.requiredSkills.forEach(req => {
+      const reqLow = req.toLowerCase();
+      const found = userSkillsLower.some(u => u === reqLow || u.includes(reqLow) || reqLow.includes(u));
+      if (found) matched.push(req);
+      else missing.push(req);
+    });
+    const score = job.requiredSkills.length ? Math.round((matched.length / job.requiredSkills.length) * 100) : 0;
+    let tier = "Stretch";
+    let tierClass = "fit-stretch";
+    if (score >= 75) { tier = "Strong Match"; tierClass = "fit-strong"; }
+    else if (score >= 50) { tier = "Good Match"; tierClass = "fit-good"; }
+    return { score, tier, tierClass, matched, missing };
+  }
+
+  function switchView(viewId) {
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+    document.getElementById("view-" + viewId).classList.add("active");
+    document.querySelectorAll(".nav-btn").forEach(b => {
+      b.classList.toggle("active", b.dataset.view === viewId);
+    });
+    if (viewId === "feed") renderFeed();
+    if (viewId === "tailor") renderTailorStudio();
+    if (viewId === "prep") renderPrepWorkspace();
+    if (viewId === "tracker") renderTracker();
+    if (viewId === "profile") populateProfileForm();
+  }
+
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.addEventListener("click", () => switchView(btn.dataset.view));
+  });
+
+  function updateHeaderMeters() {
+    const meter = document.getElementById("credit-meter");
+    const planBtn = document.getElementById("header-plan-btn");
+    if (state.plan === "pro") {
+      meter.innerHTML = `<span>Tailoring: <strong>∞ Unlimited</strong></span> • <span>Prep: <strong>∞ Unlimited</strong></span>`;
+      planBtn.textContent = state.proPlanLabel || "RoleRadar Pro";
+      planBtn.className = "plan-badge plan-pro";
+    } else {
+      const tRem = Math.max(0, state.tailorMaxFree - state.tailorCreditsUsed);
+      const pRem = Math.max(0, state.prepMaxFree - state.prepCreditsUsed);
+      meter.innerHTML = `<span>Free Tailoring: <strong>${tRem}/${state.tailorMaxFree}</strong></span> • <span>Free Prep: <strong>${pRem}/${state.prepMaxFree}</strong></span>`;
+      planBtn.textContent = "Free Tier • Upgrade";
+      planBtn.className = "plan-badge plan-free";
+    }
+    document.getElementById("tracker-count").textContent = state.applications.length;
+  }
+
+  // --- PERSONA & PROFILE ---
+  function switchPersona(key) {
+    state.personaKey = key;
+    state.user = JSON.parse(JSON.stringify(PERSONAS[key]));
+    state.tailoredJobs = {};
+    renderSidebarProfile();
+    renderFeed();
+    showToast(`Switched profile to ${state.user.name}`);
+  }
+
+  function renderSidebarProfile() {
+    document.getElementById("side-name").textContent = state.user.name;
+    document.getElementById("side-role").textContent = state.user.roleTitle;
+    document.getElementById("side-skills").innerHTML = state.user.skills
+      .map(s => `<span class="badge b-gray">${s}</span>`).join("");
+  }
+
+  function populateProfileForm() {
+    document.getElementById("p-name").value = state.user.name;
+    document.getElementById("p-title").value = state.user.roleTitle;
+    document.getElementById("p-skills").value = state.user.skills.join(", ");
+    document.getElementById("p-summary").value = state.user.baseSummary;
+    document.getElementById("a-mode").value = state.alertsMode;
+  }
+
+  function saveProfileChanges() {
+    state.user.name = document.getElementById("p-name").value.trim() || "Candidate";
+    state.user.roleTitle = document.getElementById("p-title").value.trim() || "Job Seeker";
+    state.user.skills = document.getElementById("p-skills").value
+      .split(",").map(s => s.trim()).filter(Boolean);
+    state.user.baseSummary = document.getElementById("p-summary").value.trim();
+    renderSidebarProfile();
+    renderFeed();
+    showToast("Profile updated — AI Fit scores recalculated!");
+  }
+
+  function simulateResumeParse() {
+    const fileInput = document.getElementById("resume-upload-input");
+    const file = fileInput.files[0];
+    if (!file) return;
+    showToast(`Parsed "${file.name}" into structured skills & history (FR02)`);
+    if (!state.user.skills.includes("Docker")) {
+      state.user.skills.push("Docker");
+      populateProfileForm();
+      renderSidebarProfile();
+    }
+  }
+
+  // --- FEED RENDERING ---
+  function renderFeed() {
+    renderSidebarProfile();
+    updateHeaderMeters();
+    const search = document.getElementById("f-search").value.toLowerCase();
+    const maxAge = parseInt(document.getElementById("f-freshness").value, 10);
+    const tierFilter = document.getElementById("f-tier").value;
+    const remoteFilter = document.getElementById("f-remote").value;
+    const hideReposted = document.getElementById("f-hide-reposted").checked;
+
+    const scored = JOBS_DATA.map(job => ({ job, fit: computeFit(job) }))
+      .filter(({ job, fit }) => {
+        if (job.postedDaysAgo > maxAge) return false;
+        if (hideReposted && job.repostCount >= 3) return false;
+        if (remoteFilter !== "all" && job.remoteMode !== remoteFilter) return false;
+        if (tierFilter !== "all" && fit.tier !== tierFilter) return false;
+        if (search) {
+          const hay = `${job.title} ${job.company} ${job.requiredSkills.join(" ")}`.toLowerCase();
+          if (!hay.includes(search)) return false;
+        }
+        return true;
+      })
+      .sort((a, b) => b.fit.score - a.fit.score);
+
+    document.getElementById("feed-summary-stat").textContent = `${scored.length} verified active roles shown`;
+
+    const container = document.getElementById("job-feed-list");
+    if (!scored.length) {
+      container.innerHTML = `<div class="card" style="text-align:center; padding:32px;">
+        <h3>No roles match current filters</h3>
+        <p style="color:var(--text-muted); margin-top:6px;">Try widening your posting age threshold or updating skills in Profile.</p>
+      </div>`;
+      return;
+    }
+
+    container.innerHTML = scored.map(({ job, fit }) => {
+      const isReported = !!state.reportedJobs[job.id];
+      const isSaved = state.applications.some(a => a.jobId === job.id);
+      const cardClass = job.hasFeeTrapWarning ? "job-card scam-warn" : (job.repostCount >= 3 ? "job-card flagged" : "job-card");
+
+      return `
+        <article class="${cardClass}">
+          <div class="job-header">
+            <div>
+              <div class="job-title">${job.title}</div>
+              <div class="job-company">${job.company} • ${job.location} • <strong>${job.salary}</strong></div>
+            </div>
+            <div class="fit-box">
+              <div class="fit-score ${fit.tierClass}">${fit.score}%</div>
+              <span class="badge ${fit.tier === 'Strong Match' ? 'b-green' : fit.tier === 'Good Match' ? 'b-blue' : 'b-amber'}">${fit.tier}</span>
+            </div>
+          </div>
+
+          <div class="signal-bar">
+            <span class="badge b-green">Fresh • ${job.postedDaysAgo}d ago</span>
+            <span class="badge b-gray">Sources merged (${job.sources.length}): ${job.sources.join(", ")}</span>
+            ${job.sources[0].includes("Direct") || job.sources[0].includes("Greenhouse") || job.sources[0].includes("Lever")
+              ? `<span class="badge b-blue">✓ Direct Career/ATS Link</span>` : ""}
+            ${job.repostCount >= 3 ? `<span class="badge b-amber">⚠ Reposted ${job.repostCount}x (Low-Signal)</span>` : ""}
+            ${job.hasFeeTrapWarning ? `<span class="badge b-red">⛔ Fee-Trap / Unverified Form Warning</span>` : ""}
+            ${isReported ? `<span class="badge b-red">Reported by you</span>` : ""}
+          </div>
+
+          <div class="fit-explain">
+            <div><strong>Matched Skills:</strong> ${fit.matched.length ? fit.matched.map(s => `<span class="badge b-green">${s}</span>`).join(" ") : '<span style="color:var(--text-light)">None yet</span>'}</div>
+            <div style="margin-top:6px;"><strong>Missing / Gap Skills:</strong> ${fit.missing.length ? fit.missing.map(s => `<span class="badge b-amber">${s}</span>`).join(" ") : '<span class="badge b-green">No critical gaps!</span>'}</div>
+          </div>
+
+          <div class="job-actions">
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm" onclick="triggerTailor('${job.id}')">✨ Tailor Resume</button>
+              <button class="btn btn-outline btn-sm" onclick="triggerPrep('${job.id}')">📘 Prep &amp; Upskill</button>
+              <button class="btn btn-outline btn-sm" onclick="saveToTracker('${job.id}')">${isSaved ? "✓ In Tracker" : "+ Save Role"}</button>
+              <a class="btn btn-outline btn-sm" href="${job.directUrl}" target="_blank" rel="noopener" onclick="event.preventDefault(); showToast('Opening verified direct URL: ${job.directUrl}')">Apply Direct ↗</a>
+            </div>
+            <button class="btn btn-sm ${isReported ? 'btn-danger-soft' : 'btn-outline'}" onclick="reportJob('${job.id}')">
+              ${isReported ? "Reported ✓" : "⚑ 1-Tap Report"}
+            </button>
+          </div>
+        </article>
+      `;
+    }).join("");
+  }
+
+  function reportJob(jobId) {
+    state.reportedJobs[jobId] = true;
+    showToast("Listing flagged for safety & freshness review (BR07 free protection).");
+    renderFeed();
+  }
+
+  function saveToTracker(jobId) {
+    const existing = state.applications.find(a => a.jobId === jobId);
+    if (!existing) {
+      const tailored = state.tailoredJobs[jobId];
+      state.applications.push({
+        jobId,
+        status: "Saved",
+        resumeVersion: tailored && tailored.saved ? tailored.versionName : "Base Resume",
+        appliedDate: "Today"
+      });
+      showToast("Role saved to Application Tracker!");
+    } else {
+      showToast("Role is already in your Application Tracker.");
+    }
+    updateHeaderMeters();
+    renderFeed();
+  }
+
+  // --- RESUME TAILORING (FR07 / BR02 / US03) ---
+  function triggerTailor(jobId) {
+    const alreadyTailored = !!state.tailoredJobs[jobId];
+    if (!alreadyTailored && state.plan === "free" && state.tailorCreditsUsed >= state.tailorMaxFree) {
+      openUpgradeModal("tailor");
+      return;
+    }
+    if (!alreadyTailored) {
+      if (state.plan === "free") state.tailorCreditsUsed++;
+      initTailoredDraft(jobId);
+    }
+    state.activeTailorJobId = jobId;
+    updateHeaderMeters();
+    switchView("tailor");
+  }
+
+  function initTailoredDraft(jobId) {
+    const job = JOBS_DATA.find(j => j.id === jobId);
+    const fit = computeFit(job);
+    const hints = job.tailorHints;
+
+    state.tailoredJobs[jobId] = {
+      versionName: `Resume_${job.company.replace(/\s+/g, "")}_v1`,
+      saved: false,
+      diffs: [
+        {
+          id: "summary",
+          label: "Professional Summary",
+          before: state.user.baseSummary,
+          after: `${hints.summaryPrefix} Grounded in ${state.user.experienceYears}+ years of verified delivery across ${fit.matched.slice(0, 4).join(", ") || "core technical skills"}.`,
+          status: "accepted"
+        },
+        {
+          id: "bullet1",
+          label: "Experience Bullet #1 (Impact Alignment)",
+          before: state.user.baseBullets[0],
+          after: `${state.user.baseBullets[0].replace(/\.$/, "")}, ${hints.bullet1Keywords}.`,
+          status: "accepted"
+        },
+        {
+          id: "bullet2",
+          label: "Experience Bullet #2 (Keyword Emphasis)",
+          before: state.user.baseBullets[1],
+          after: `${state.user.baseBullets[1].replace(/\.$/, "")}, ${hints.bullet2Keywords}.`,
+          status: "pending"
+        },
+        {
+          id: "keywords",
+          label: "Highlighted Verified Skills (Reordered for ATS)",
+          before: state.user.skills.join(" • "),
+          after: [...fit.matched, ...state.user.skills.filter(s => !fit.matched.includes(s))].join(" • "),
+          status: "accepted"
+        }
+      ]
+    };
+  }
+
+  function renderTailorStudio() {
+    const job = JOBS_DATA.find(j => j.id === state.activeTailorJobId);
+    if (!job || !state.tailoredJobs[job.id]) {
+      if (job && (state.plan === "pro" || state.tailorCreditsUsed < state.tailorMaxFree)) {
+        initTailoredDraft(job.id);
+      } else {
+        document.getElementById("tailor-empty").style.display = "block";
+        document.getElementById("tailor-workspace").style.display = "none";
+        return;
+      }
+    }
+    document.getElementById("tailor-empty").style.display = "none";
+    document.getElementById("tailor-workspace").style.display = "block";
+
+    const fit = computeFit(job);
+    const draft = state.tailoredJobs[job.id];
+
+    document.getElementById("tailor-job-title").textContent = `${job.title} — ${job.company}`;
+    document.getElementById("tailor-job-meta").textContent = `Target Version: ${draft.versionName} • Fit Score: ${fit.score}% (${fit.tier})`;
+
+    const gapsEl = document.getElementById("tailor-routed-gaps");
+    if (fit.missing.length) {
+      gapsEl.innerHTML = fit.missing.map(g =>
+        `<span class="badge b-amber">Missing: ${g} → Routed to Upskilling</span>`
+      ).join("") + `<button class="btn btn-sm btn-outline" onclick="triggerPrep('${job.id}')">Open Upskilling Plan →</button>`;
+    } else {
+      gapsEl.innerHTML = `<span class="badge b-green">All required job skills verified in your base resume!</span>`;
+    }
+
+    const diffContainer = document.getElementById("diff-container");
+    diffContainer.innerHTML = draft.diffs.map((d, idx) => `
+      <div class="diff-block">
+        <div class="diff-header">
+          <span>${d.label}</span>
+          <div style="display:flex; gap:6px; align-items:center;">
+            <span class="badge ${d.status === 'accepted' ? 'b-green' : d.status === 'rejected' ? 'b-red' : 'b-amber'}">${d.status.toUpperCase()}</span>
+            <button class="btn btn-sm ${d.status === 'accepted' ? 'btn-success' : 'btn-outline'}" onclick="setDiffStatus('${job.id}', ${idx}, 'accepted')">✓ Accept</button>
+            <button class="btn btn-sm ${d.status === 'rejected' ? 'btn-danger' : 'btn-outline'}" onclick="setDiffStatus('${job.id}', ${idx}, 'rejected')">✕ Keep Original</button>
+            <button class="btn btn-sm btn-outline" onclick="editDiffText('${job.id}', ${idx})">✎ Edit</button>
+            <button class="btn btn-sm btn-outline" title="Report inaccurate AI claim" onclick="showToast('Flagged for Guardrail Metric audit (BR02).')">⚑ Flag</button>
+          </div>
+        </div>
+        <div class="diff-cols">
+          <div class="diff-col">
+            <div class="diff-label">Original Base Resume</div>
+            <div>${d.before}</div>
+          </div>
+          <div class="diff-col">
+            <div class="diff-label">Role-Tailored Suggestion (Verified Grounding)</div>
+            <div>${d.after}</div>
+          </div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function setDiffStatus(jobId, idx, status) {
+    state.tailoredJobs[jobId].diffs[idx].status = status;
+    renderTailorStudio();
+  }
+
+  function editDiffText(jobId, idx) {
+    const d = state.tailoredJobs[jobId].diffs[idx];
+    const updated = prompt(`Edit tailored "${d.label}":`, d.after);
+    if (updated !== null && updated.trim()) {
+      d.after = updated.trim();
+      d.status = "accepted";
+      renderTailorStudio();
+      showToast("Custom edit applied and approved.");
+    }
+  }
+
+  function saveTailoredVersion() {
+    const jobId = state.activeTailorJobId;
+    const draft = state.tailoredJobs[jobId];
+    draft.saved = true;
+    let app = state.applications.find(a => a.jobId === jobId);
+    if (!app) {
+      app = { jobId, status: "Saved", resumeVersion: draft.versionName, appliedDate: "Today" };
+      state.applications.push(app);
+    } else {
+      app.resumeVersion = draft.versionName;
+    }
+    updateHeaderMeters();
+    showToast(`Saved "${draft.versionName}" & linked to Application Tracker!`);
+  }
+
+  function exportTailoredResume(format) {
+    const jobId = state.activeTailorJobId;
+    const job = JOBS_DATA.find(j => j.id === jobId);
+    const draft = state.tailoredJobs[jobId];
+    const getText = (id) => {
+      const d = draft.diffs.find(x => x.id === id);
+      return d.status === "rejected" ? d.before : d.after;
+    };
+    const content = `
+${state.user.name.toUpperCase()}
+Target Role: ${job.title} (${job.company})
+
+PROFESSIONAL SUMMARY
+${getText("summary")}
+
+VERIFIED SKILLS
+${getText("keywords")}
+
+EXPERIENCE HIGHLIGHTS
+• ${getText("bullet1")}
+• ${getText("bullet2")}
+    `.trim();
+
+    if (format === "print") {
+      const w = window.open("", "_blank");
+      w.document.write(`<pre style="font-family:Segoe UI,sans-serif; white-space:pre-wrap; padding:40px; max-width:750px; margin:auto; line-height:1.6;">${content}</pre>`);
+      w.document.close();
+      w.print();
+      showToast("Opened Print / Save as PDF dialog.");
+    } else {
+      const blob = new Blob([content], { type: "application/msword" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${draft.versionName}.doc`;
+      a.click();
+      showToast(`Exported ${draft.versionName}.doc!`);
+    }
+  }
+
+  // --- PREP & UPSKILL (FR08 / BR03 / US04) ---
+  function triggerPrep(jobId) {
+    const alreadyUnlocked = !!state.prepUnlockedJobs[jobId];
+    if (!alreadyUnlocked && state.plan === "free" && state.prepCreditsUsed >= state.prepMaxFree) {
+      openUpgradeModal("prep");
+      return;
+    }
+    if (!alreadyUnlocked) {
+      if (state.plan === "free") state.prepCreditsUsed++;
+      state.prepUnlockedJobs[jobId] = { checked: [] };
+    }
+    state.activePrepJobId = jobId;
+    updateHeaderMeters();
+    switchView("prep");
+  }
+
+  function renderPrepWorkspace() {
+    const job = JOBS_DATA.find(j => j.id === state.activePrepJobId);
+    if (!job) return;
+    if (!state.prepUnlockedJobs[job.id]) {
+      state.prepUnlockedJobs[job.id] = { checked: [] };
+    }
+
+    const fit = computeFit(job);
+    const unlocked = state.prepUnlockedJobs[job.id];
+    const total = job.checklist.length;
+    const doneCount = unlocked.checked.length;
+    const pct = total ? Math.round((doneCount / total) * 100) : 100;
+
+    document.getElementById("prep-job-title").textContent = `${job.title} — ${job.company}`;
+    document.getElementById("prep-job-meta").textContent = `${fit.missing.length} skill gaps identified • ${job.rounds.length} expected interview rounds`;
+    document.getElementById("prep-pct-label").textContent = `${pct}% (${doneCount}/${total})`;
+    document.getElementById("prep-pct-bar").style.width = `${pct}%`;
+
+    // Resources
+    const resEl = document.getElementById("prep-resources-list");
+    const gapSkills = fit.missing.length ? fit.missing : job.requiredSkills.slice(0, 2);
+    resEl.innerHTML = gapSkills.map(skill => {
+      const item = LEARNING_CATALOG[skill] || {
+        title: `Official ${skill} Documentation & Practice Set`,
+        type: "Docs",
+        difficulty: "Intermediate",
+        duration: "1.5 hrs",
+        cost: "Free",
+        url: "#"
+      };
+      return `
+        <div style="border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+            <span class="badge ${fit.missing.includes(skill) ? 'b-amber' : 'b-green'}">${fit.missing.includes(skill) ? 'Skill Gap: ' + skill : 'Reinforce: ' + skill}</span>
+            <span class="badge ${item.cost === 'Free' ? 'b-green' : 'b-purple'}">${item.cost}</span>
+          </div>
+          <div style="font-weight:700; margin:6px 0 4px;">${item.title}</div>
+          <div style="font-size:12px; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
+            <span>${item.type} • ${item.difficulty} • ⏱ ${item.duration}</span>
+            <a href="${item.url}" target="_blank" rel="noopener" style="color:var(--primary); font-weight:600; text-decoration:none;">Open Verified Resource ↗</a>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    // Rounds & Checklist
+    document.getElementById("prep-rounds-badges").innerHTML = job.rounds
+      .map((r, i) => `<span class="badge b-blue">Round ${i + 1}: ${r}</span>`).join("");
+
+    document.getElementById("prep-checklist-items").innerHTML = job.checklist.map((item, idx) => {
+      const isDone = unlocked.checked.includes(idx);
+      return `
+        <label class="check-item ${isDone ? 'done' : ''}">
+          <input type="checkbox" ${isDone ? "checked" : ""} onchange="togglePrepItem('${job.id}', ${idx})" />
+          <span>${item}</span>
+        </label>
+      `;
+    }).join("");
+  }
+
+  function togglePrepItem(jobId, idx) {
+    const arr = state.prepUnlockedJobs[jobId].checked;
+    const pos = arr.indexOf(idx);
+    if (pos >= 0) arr.splice(pos, 1);
+    else arr.push(idx);
+    renderPrepWorkspace();
+  }
+
+  // --- TRACKER (FR09 / US05) ---
+  function renderTracker() {
+    const tbody = document.getElementById("tracker-tbody");
+    if (!state.applications.length) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted);">No tracked applications yet. Save or tailor a role from Job Discovery.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = state.applications.map((app, i) => {
+      const job = JOBS_DATA.find(j => j.id === app.jobId);
+      const fit = computeFit(job);
+      const prep = state.prepUnlockedJobs[job.id];
+      const prepPct = prep && job.checklist.length ? Math.round((prep.checked.length / job.checklist.length) * 100) : 0;
+
+      return `
+        <tr>
+          <td>
+            <strong>${job.title}</strong>
+            <div style="font-size:12px; color:var(--text-muted);">${job.company}</div>
+          </td>
+          <td><span class="badge ${fit.score >= 75 ? 'b-green' : fit.score >= 50 ? 'b-blue' : 'b-amber'}">${fit.score}%</span></td>
+          <td><span class="badge b-gray">${app.resumeVersion}</span></td>
+          <td>${prepPct}% ready</td>
+          <td>
+            <select onchange="updateAppStage(${i}, this.value)" style="width:auto; padding:5px 8px;">
+              ${["Saved", "Applied", "Interviewing", "Offer", "No Response"].map(st =>
+                `<option value="${st}" ${app.status === st ? "selected" : ""}>${st}</option>`
+              ).join("")}
+            </select>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline" onclick="triggerTailor('${job.id}')">Tailor</button>
+            <button class="btn btn-sm btn-outline" onclick="triggerPrep('${job.id}')">Prep</button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function updateAppStage(index, newStatus) {
+    state.applications[index].status = newStatus;
+    showToast(`Application moved to "${newStatus}"`);
+  }
+
+  // --- ALERTS, PRIVACY & MONETIZATION MODALS ---
+  function handleAlertModeChange(val) {
+    if (val === "instant" && state.plan === "free") {
+      document.getElementById("a-mode").value = state.alertsMode;
+      openUpgradeModal("alerts");
+      return;
+    }
+    state.alertsMode = val;
+    showToast(`Alert preference updated to: ${val}`);
+  }
+
+  function openUpgradeModal(reason) {
+    const title = document.getElementById("upgrade-title");
+    const sub = document.getElementById("upgrade-subtitle");
+    if (reason === "tailor") {
+      title.textContent = "Free Tailoring Starter Credits Used (3/3)";
+      sub.textContent = "Upgrade to RoleRadar Pro or a Job-Hunt Pass for unlimited truthful resume tailoring and DOCX/PDF exports. Your job feed remains free forever.";
+    } else if (reason === "prep") {
+      title.textContent = "Free Sample Prep Roadmap Used (1/1)";
+      sub.textContent = "Upgrade to unlock unlimited role-specific interview checklists and curated upskilling roadmaps.";
+    } else if (reason === "alerts") {
+      title.textContent = "Real-Time Instant Alerts Require RoleRadar Pro";
+      sub.textContent = "Daily digest alerts are free forever. Unlock instant high-fit notifications with Pro.";
+    } else {
+      title.textContent = "Upgrade to RoleRadar Pro";
+      sub.textContent = "Get unlimited resume tailoring, deep interview prep checklists, and instant high-fit alerts.";
+    }
+    document.getElementById("upgrade-modal").classList.add("open");
+  }
+
+  function selectPlanOption(opt) {
+    state.selectedProOption = opt;
+    document.getElementById("opt-monthly").classList.toggle("selected", opt === "monthly");
+    document.getElementById("opt-pass").classList.toggle("selected", opt === "pass");
+  }
+
+  function completeProUpgrade() {
+    state.plan = "pro";
+    state.proPlanLabel = state.selectedProOption === "pass" ? "Job-Hunt Pass Active" : "RoleRadar Pro";
+    closeModal("upgrade-modal");
+    updateHeaderMeters();
+    showToast(`Checkout complete! ${state.proPlanLabel} unlocked immediately (US07).`);
+  }
+
+  function exportUserDataJSON() {
+    const exportObj = {
+      exportedAt: new Date().toISOString(),
+      profile: state.user,
+      applications: state.applications,
+      tailoredVersions: Object.keys(state.tailoredJobs).map(k => state.tailoredJobs[k].versionName)
+    };
+    const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "roleradar-my-data.json";
+    a.click();
+    showToast("Exported personal career data (JSON).");
+  }
+
+  function openDeleteModal() { document.getElementById("delete-modal").classList.add("open"); }
+  function closeModal(id) { document.getElementById(id).classList.remove("open"); }
+
+  function confirmPermanentDelete() {
+    state.user = {
+      name: "Deleted User",
+      roleTitle: "",
+      experienceYears: 0,
+      skills: [],
+      baseSummary: "",
+      baseBullets: ["", ""]
+    };
+    state.tailoredJobs = {};
+    state.prepUnlockedJobs = {};
+    state.applications = [];
+    closeModal("delete-modal");
+    populateProfileForm();
+    renderSidebarProfile();
+    updateHeaderMeters();
+    showToast("All base resumes, tailored versions, and personal records permanently deleted (US06).");
+  }
+
+  // --- INIT ---
+  renderFeed();
+</script>
+</body>
+</html>
